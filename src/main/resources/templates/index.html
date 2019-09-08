@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+	<title>Document</title>
+	<!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+	<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
+			integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+			crossorigin="anonymous"
+	/>
+	<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+	<script
+			src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"
+			integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+			crossorigin="anonymous"
+	></script>
+
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+	<script src="https://cdn.bootcss.com/echarts/4.2.1-rc1/echarts.min.js"></script>
+	<script src="https://cdn.bootcss.com/axios/0.19.0-beta.1/axios.js"></script>
+	<style>
+		.table tr td input {
+		}
+		.button {
+			float: right;
+			margin-right: 20px;
+		}
+		.button2 {
+			float: right;
+			margin-right: 62px;
+		}
+	</style>
+</head>
+<body>
+<div class="box">
+	<div class="table-responsive">
+		<table class="table">
+			<tr>
+				<td>点位名称</td>
+				<td>开始时间</td>
+				<td>开始温度</td>
+				<td>第一次稳定时间</td>
+				<td>第一次稳定温度</td>
+				<td>第二次稳定时间</td>
+				<td>第二次稳定温度</td>
+			</tr>
+			<tr>
+				<td><input type="text" /></td>
+				<td><input type="text" /></td>
+				<td><input type="text" /></td>
+				<td><input type="text" /></td>
+				<td><input type="text" /></td>
+				<td><input type="text" /></td>
+				<td><input type="text" /></td>
+				<td><button class="btn btn-default clean">删除行</button></td>
+			</tr>
+			<tr>
+				<td><input type="text" /></td>
+				<td><input type="text" /></td>
+				<td><input type="text" /></td>
+				<td><input type="text" /></td>
+				<td><input type="text" /></td>
+				<td><input type="text" /></td>
+				<td><input type="text" /></td>
+				<td><button class="btn btn-default clean">删除行</button></td>
+			</tr>
+		</table>
+
+		<button class="btn btn-default button2">生成</button>
+		<button class="btn btn-default button">添加行</button>
+        <button class="btn btn-default button">导出数据</button>
+	</div>
+	<!-- <div id="main" style="width: 100%;height:400px;"></div> -->
+</div>
+
+<script>
+    var but = document.querySelector('.button');
+    var box = document.querySelector('.box');
+    var button2 = document.querySelector('.button2');
+    var tr = document.getElementsByTagName('tr')[0];
+    var input = document.getElementsByTagName('input');
+    var clean = document.querySelectorAll('.clean');
+    var obj = [];
+    var obj1 = {};
+    var xx = [];
+    var result = [];
+    but.onclick = () => {
+        var dom = document.createElement('tr');
+        dom.innerHTML =
+            '<td><input type="text" /></td><td><input type="text" /></td><td><input type="text" /></td><td><input type="text" /></td><td><input type="text" /></td><td><input type="text" /></td><td><input type="text" /></td></<td><td><button class="btn btn-default clean">删除</button></td>';
+        tr.parentNode.appendChild(dom);
+    };
+
+    button2.onclick = () => {
+        var dom = document.createElement('div');
+        dom.id = 'main';
+        dom.style = 'width: 100%;height:400px;';
+        box.appendChild(dom);
+        abb();
+        obj = [];
+        xx = [];
+        for (let i = 0; i < input.length; i++) {
+            if (input[i].value) {
+                obj.push(input[i].value);
+
+                if (obj.length % 7 == 0) {
+                    result = [];
+                    xx = [];
+                    for (var h = 0; h < obj.length; h += 7) {
+                        result.push(obj.slice(h, h + 7));
+                    }
+                    for (var q = 0; q < result.length; q++) {
+                        obj1 = {
+                            name: result[q][0],
+                            beginTime: result[q][1],
+                            beginT: result[q][2],
+                            stableTime: result[q][3],
+                            stableT: result[q][4],
+                            stableTime2: result[q][5],
+                            stableT2: result[q][6]
+                        };
+                        xx.push(obj1);
+                        obj1 = {};
+                    }
+                }
+            }
+        }
+
+        for (var val of xx) {
+        }
+        // $.ajax({
+        // 	type: 'post',
+        // 	url: '/anci/generateLine',
+        // 	data: Object.assign({}, xx),
+        // 	dataType: 'json',
+        // 	// cache: false,//不使用缓存
+        // 	success: function(date) {
+        // 		// $('.box').html(d);
+        // 		console.log(date);
+        // 	}
+        // });
+        console.log(xx);
+        axios
+            .post('/anci/generateLine', xx)
+            .then(function(response) {
+                console.log(response.data);
+
+
+            })
+            .catch(function(error) {
+                console.log(error);
+            });
+    };
+    for (let j = 0; j < clean.length; j++) {
+        document.onclick = eve => {
+            var e = eve || window.event;
+            var target = e.target || e.srcElement;
+            if (target.className == 'btn btn-default clean') {
+                target.parentNode.parentNode.parentNode.removeChild(target.parentNode.parentNode);
+            }
+        };
+    }
+
+    // echarts
+    // 基于准备好的dom，初始化echarts实例
+    function abb() {
+        var myChart = echarts.init(document.getElementById('main'));
+
+        // 指定图表的配置项和数据
+        var option = {
+            title: {
+                text: 'CH1',
+                subtext: '点位'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['温度']
+            },
+            toolbox: {
+                show: true,
+                feature: {
+                    mark: { show: true },
+                    dataView: { show: true, readOnly: false },
+                    magicType: { show: true, type: ['line', 'bar'] },
+                    restore: { show: true },
+                    saveAsImage: { show: true }
+                }
+            },
+            calculable: true,
+            xAxis: [
+                {
+                    type: 'category',
+                    boundaryGap: false,
+                    axisTick: {
+                        inside: true,
+                        length: 5
+                    },
+                    axisLabel: {
+                        show: true,
+                        rotate: 40,
+                        margin: 20
+                        // textStyle: {
+                        //     color: 'red'
+                        // }
+                    },
+                    data: [
+                        '14:42:14',
+                        '14:44:14',
+                        '14:46:14',
+                        '14:48:14',
+                        '14:50:14',
+                        '14:52:14',
+                        '14:54:14',
+                        '14:56:14',
+                        '14:58:14',
+                        '15:00:14',
+                        '15:02:14',
+                        '15:04:14',
+                        '15:06:14',
+                        '15:08:14',
+                        '15:10:14',
+                        '15:12:14',
+                        '15:14:14',
+                        '15:16:14',
+                        '15:18:14',
+                        '15:20:14',
+                        '15:22:14',
+                        '15:24:14',
+                        '15:26:14',
+                        '15:28:14',
+                        '15:30:14',
+                        '15:32:14',
+                        '15:34:14',
+                        '15:36:14',
+                        '15:38:14',
+                        '15:40:14',
+                        '15:42:14',
+                        '15:44:14',
+                        '15:46:14',
+                        '15:48:14',
+                        '15:50:14',
+                        '15:52:14',
+                        '15:54:14',
+                        '15:56:14',
+                        '15:58:14',
+                        '16:00:14',
+                        '16:02:14',
+                        '16:04:14',
+                        '16:06:14',
+                        '16:08:14',
+                        '16:10:14',
+                        '16:12:14',
+                        '16:14:14',
+                        '16:16:14',
+                        '16:18:14',
+                        '16:20:14',
+                        '16:22:14',
+                        '16:24:14',
+                        '16:26:14',
+                        '16:28:14',
+                        '16:30:14',
+                        '16:32:14',
+                        '16:34:14',
+                        '16:36:14',
+                        '16:38:14',
+                        '16:40:14',
+                        '16:42:14',
+                        '16:44:14',
+                        '16:46:14',
+                        '16:48:14',
+                        '16:50:14',
+                        '16:52:14',
+                        '16:54:14',
+                        '16:56:14',
+                        '16:58:14',
+                        '17:00:14',
+                        '17:02:14',
+                        '17:04:14',
+                        '17:06:14',
+                        '17:08:14',
+                        '17:10:14',
+                        '17:12:14',
+                        '17:14:14',
+                        '17:16:14',
+                        '17:18:14',
+                        '17:20:14',
+                        '17:22:14',
+                        '17:24:14',
+                        '17:26:14',
+                        '17:28:14',
+                        '17:30:14',
+                        '17:32:14',
+                        '17:34:14',
+                        '17:36:14',
+                        '17:38:14',
+                        '17:40:14',
+                        '17:42:14',
+                        '17:44:14',
+                        '17:46:14',
+                        '17:48:14',
+                        '17:50:14',
+                        '17:52:14',
+                        '17:54:14',
+                        '17:56:14',
+                        '17:58:14',
+                        '18:00:14',
+                        '18:02:14',
+                        '18:04:14',
+                        '18:06:14',
+                        '18:08:14',
+                        '18:10:14',
+                        '18:12:14',
+                        '18:14:14',
+                        '18:16:14',
+                        '18:18:14',
+                        '18:20:14',
+                        '18:22:14',
+                        '18:24:14',
+                        '18:26:14',
+                        '18:28:14',
+                        '18:30:14',
+                        '18:32:14',
+                        '18:34:14',
+                        '18:36:14'
+                    ]
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    max: 90.0,
+                    minInterval: 10.0,
+                    interval: 10.0, //每次增加几个
+                    axisTick: {
+                        inside: true,
+                        length: 1
+                    },
+                    // axisLabel : {
+                    //     formatter: '{value} °C'
+                    // }
+                    axisLabel: {
+                        formatter: function(v) {
+                            return v.toFixed(1); //0表示小数为0位，1表示1位小数，2表示2位小数
+                        }
+                    }
+                }
+            ],
+            series: [
+                {
+                    name: 'CH1',
+                    type: 'line',
+                    smooth: true,
+                    symbol: 'none',
+                    data: [
+                        25.0,
+                        27.3,
+                        29.5,
+                        31.6,
+                        33.6,
+                        35.5,
+                        37.3,
+                        39.0,
+                        40.7,
+                        42.2,
+                        43.7,
+                        45.1,
+                        46.5,
+                        47.8,
+                        49.0,
+                        50.2,
+                        51.3,
+                        52.4,
+                        53.4,
+                        54.4,
+                        55.3,
+                        56.2,
+                        57.0,
+                        57.8,
+                        58.6,
+                        59.3,
+                        59.9,
+                        60.5,
+                        61.1,
+                        61.6,
+                        62.1,
+                        62.6,
+                        63.0,
+                        63.4,
+                        63.7,
+                        64.1,
+                        64.3,
+                        64.6,
+                        64.8,
+                        64.9,
+                        65.0,
+                        65.1,
+                        65.2,
+                        65.2,
+                        65.2,
+                        65.2,
+                        65.3,
+                        65.3,
+                        65.3,
+                        65.3,
+                        65.3,
+                        65.4,
+                        65.4,
+                        65.4,
+                        65.4,
+                        65.4,
+                        65.5,
+                        65.5,
+                        65.5,
+                        65.5,
+                        65.5,
+                        65.6,
+                        65.6,
+                        65.6,
+                        65.6,
+                        65.6,
+                        65.7,
+                        65.7,
+                        65.7,
+                        65.7,
+                        65.7,
+                        65.7,
+                        65.8,
+                        65.8,
+                        65.8,
+                        65.8,
+                        65.8,
+                        65.9,
+                        65.9,
+                        65.9,
+                        65.9,
+                        65.9,
+                        66.0,
+                        66.0,
+                        66.0,
+                        67.7,
+                        68.7,
+                        69.2,
+                        69.2,
+                        69.3,
+                        69.3,
+                        69.3,
+                        69.3,
+                        69.4,
+                        69.4,
+                        69.4,
+                        69.4,
+                        69.5,
+                        69.5,
+                        69.5,
+                        69.6,
+                        69.6,
+                        69.6,
+                        69.6,
+                        69.7,
+                        69.7,
+                        69.7,
+                        69.8,
+                        69.8,
+                        69.8,
+                        69.8,
+                        69.9,
+                        69.9,
+                        69.9,
+                        69.9,
+                        70.0,
+                        70.0
+                    ]
+                },
+                {
+                    name: 'CH2',
+                    type: 'line',
+                    smooth: true,
+                    symbol: 'none',
+                    data: [
+                        25.0,
+                        25.6,
+                        26.1,
+                        26.7,
+                        27.2,
+                        27.7,
+                        28.2,
+                        28.7,
+                        29.2,
+                        29.6,
+                        30.1,
+                        30.5,
+                        30.9,
+                        31.3,
+                        31.7,
+                        32.1,
+                        32.4,
+                        32.8,
+                        33.1,
+                        33.5,
+                        33.8,
+                        34.1,
+                        34.3,
+                        34.6,
+                        34.9,
+                        35.1,
+                        35.3,
+                        35.5,
+                        35.7,
+                        35.9,
+                        36.1,
+                        36.3,
+                        36.4,
+                        36.6,
+                        36.7,
+                        36.8,
+                        36.9,
+                        37.0,
+                        37.0,
+                        37.1,
+                        37.1,
+                        37.2,
+                        37.2,
+                        37.2,
+                        37.2,
+                        37.2,
+                        37.3,
+                        37.3,
+                        37.3,
+                        37.3,
+                        37.4,
+                        37.4,
+                        37.4,
+                        37.4,
+                        37.4,
+                        37.5,
+                        37.5,
+                        37.5,
+                        37.5,
+                        37.6,
+                        37.6,
+                        37.6,
+                        37.6,
+                        37.6,
+                        37.7,
+                        37.7,
+                        37.7,
+                        37.7,
+                        37.8,
+                        37.8,
+                        37.8,
+                        37.8,
+                        37.8,
+                        37.9,
+                        37.9,
+                        37.9,
+                        37.9,
+                        37.9,
+                        38.0,
+                        38.0,
+                        38.0,
+                        38.0,
+                        38.0,
+                        38.0,
+                        38.0,
+                        39.1,
+                        40.0,
+                        40.6,
+                        41.0,
+                        41.2,
+                        41.2,
+                        41.3,
+                        41.3,
+                        41.3,
+                        41.3,
+                        41.4,
+                        41.4,
+                        41.4,
+                        41.5,
+                        41.5,
+                        41.5,
+                        41.6,
+                        41.6,
+                        41.6,
+                        41.6,
+                        41.7,
+                        41.7,
+                        41.7,
+                        41.8,
+                        41.8,
+                        41.8,
+                        41.9,
+                        41.9,
+                        41.9,
+                        41.9,
+                        42.0,
+                        42.0
+                    ]
+                }
+            ]
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    }
+</script>
+</body>
+</html>
